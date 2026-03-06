@@ -38,5 +38,5 @@ end
     tmp = qclab.QCircuit(n+1,0);
   tmp.push_back(leftshift(n+1));
 circ.push_back(tmp);
-  
+  circ.asBlock("Zg")
 end
