@@ -44,6 +44,6 @@ function circ = Zb_gate(n, offset)
               i ) );                                        % shift amount
   end
 
-  % circ.asBlock('Zb')
+  circ.asBlock('Zb')
 
 end
