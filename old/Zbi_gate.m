@@ -38,4 +38,5 @@ end
   tmp.push_back(leftshift(n+1));
 
   circ.push_back(tmp);
+  circ.asBlock("Zb_i")
 end

@@ -44,5 +44,5 @@ function circ = Zs_Gate(n, offset)
               [n-1-i, n], ...                           % target wires
               [1, 0] ) );                               % shift values
   end
-
+    circ.asBlock("Zs")
 end

@@ -27,5 +27,5 @@ function circ = Zus_gate(n, offset)
 
   circ.push_back(rightshift(tot_wires-n-1) );
 
-  
+  circ.asBlock("Zus")
 end
