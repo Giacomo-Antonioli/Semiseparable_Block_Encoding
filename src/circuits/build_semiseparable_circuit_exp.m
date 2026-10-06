@@ -38,6 +38,7 @@ function [circ,u,v] = build_semiseparable_circuit_exp(v,u)
     circ = qclab.QCircuit(numQubits);
 
     %% State preparation
+    circ.push_back(qclab.qgates.Hadamard(n));
 [circU,circV,u,v]=prepareUV(n);
 circ.push_back(circV);
 circ.push_back(circU);
