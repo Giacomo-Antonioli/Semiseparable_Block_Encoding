@@ -1,4 +1,4 @@
-function circ = build_semiseparable_circuit(v,u,asBlockFlag)
+function circ = build_semiseparable_circuit2(v,u)
 %BUILD_SEMISEPARABLE_CIRCUIT Construct the block-encoding circuit for a
 % semiseparable matrix.
 %
@@ -15,9 +15,7 @@ function circ = build_semiseparable_circuit(v,u,asBlockFlag)
 %   circ - qclab.QCircuit implementing the block encoding.
 
     %% Validate inputs
-    if nargin < 3
-        asBlockFlag = false;
-    end
+
     N = length(u);
     n = log2(N);
 
@@ -37,33 +35,24 @@ function circ = build_semiseparable_circuit(v,u,asBlockFlag)
 
     %% State preparation
 
-    Uv = state_prep(v,0);
-    if asBlockFlag
-    Uv.asBlock("SP(v)");
-    end
-    Uu = state_prep(u,n+1);
-    if asBlockFlag
-    Uu.asBlock("SP(u)");
-    end
-    circ.push_back(qclab.qgates.Hadamard(n))
-    circ.push_back(Uv);
-    circ.push_back(Uu);
+
+circ.InitializeStateVector(v, 0);
+circ.InitializeStateVector(u, n+1);
 
     %% State-to-operator transformation
 
     initCirc = init_circ(n);
     circ.push_back(initCirc);
-    circ.barrier(true)
+
     %% Z_g operator
 
-    Z_sel = Sel_gate(n,asBlockFlag);
-    %Z_sel.barrier(true);
-
+    Z_sel = Sel_gate(n);
+    
     circ.push_back(Z_sel);
     %circ.barrier(true);
     %% Z_s operator
-circ.barrier(true)
-    circ.push_back(Fix_gate(n,asBlockFlag));
+
+    circ.push_back(Fix_gate(n));
 
     %% Final Hadamard
 
@@ -71,7 +60,7 @@ circ.barrier(true)
 
     %% Pairwise CNOT layer
 
-    circ.push_back(Flip_gate(n,asBlockFlag));
+    circ.push_back(Flip_gate(n));
     %% Hadamard layer
 
     for i = 0:n-1
