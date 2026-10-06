@@ -37,6 +37,7 @@ function circ = build_semiseparable_circuit_mottonen(v,u)
     circ = qclab.QCircuit(numQubits);
 
     %% State preparation
+    circ.push_back(qclab.qgates.Hadamard(n));
 
 
 circ.InitializeStateVector(v, 0);
