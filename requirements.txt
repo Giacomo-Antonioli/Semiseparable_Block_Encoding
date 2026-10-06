@@ -1,0 +1,4 @@
+numpy
+matplotlib
+qiskit>=1.0
+fable-circuits
