@@ -1,49 +1,79 @@
-function circ = build_semiseparable_circuit(u, v)
-% BUILD_SEMISEPARABLE_CIRCUIT  Constructs the block-encoding circuit for a
-% semiseparable matrix defined by vectors u and v.
+function circ = build_semiseparable_circuit(v,u,asBlockFlag)
+%BUILD_SEMISEPARABLE_CIRCUIT Construct the block-encoding circuit for a
+% semiseparable matrix.
+%
+% Given normalized vectors u and v, this routine constructs the circuit
+% encoding the semiseparable matrix
+%
+%   S = tril(u*v') + triu(v*u', 1).
 %
 % Inputs:
-%   u - normalized column vector (length N, power of 2)
-%   v - normalized column vector (length N, power of 2)
+%   u - Column vector of length N = 2^n.
+%   v - Column vector of length N = 2^n.
 %
 % Output:
-%   circ - qclab.QCircuit encoding the semiseparable matrix S = tril(u*v') + triu(v*u', 1)
+%   circ - qclab.QCircuit implementing the block encoding.
 
-    % Infer size and number of qubits
+    %% Validate inputs
+    if nargin < 3
+        asBlockFlag = false;
+    end
     N = length(u);
     n = log2(N);
 
-    assert(mod(n, 1) == 0, 'Length of u and v must be a power of 2.');
-    assert(length(v) == N, 'u and v must have the same length.');
+    assert(mod(n,1) == 0, ...
+        'The length of u and v must be a power of two.');
+    assert(length(v) == N, ...
+        'Vectors u and v must have the same length.');
 
-    % Normalize inputs (defensive copy)
+    % Normalize 
     u = u / norm(u);
     v = v / norm(v);
 
-    % Build circuit
-    tot_wires = 3*n + 2;
-    circ = qclab.QCircuit(tot_wires);
+    %% Allocate circuit
 
-    % Initialize state vectors (note: u/v roles match original x/y mapping)
-    Uv = qclab.InitializeStatevector(v, n+1);
+    numQubits = 3*n + 2;
+    circ = qclab.QCircuit(numQubits);
+
+    %% State preparation
+
+    Uv = state_prep(v,0);
+    if asBlockFlag
     Uv.asBlock("SP(v)");
-
-    Uu = qclab.InitializeStatevector(u);
+    end
+    Uu = state_prep(u,n+1);
+    if asBlockFlag
     Uu.asBlock("SP(u)");
-
+    end
+    circ.push_back(qclab.qgates.Hadamard(n))
     circ.push_back(Uv);
     circ.push_back(Uu);
 
-    % Append initialization circuit
+    %% State-to-operator transformation
+
     initCirc = init_circ(n);
-    initCirc.asBlock("P")
     circ.push_back(initCirc);
+    circ.barrier(true)
+    %% Z_g operator
 
-    % Append BB gate
-    circBB = BB_gate(n);
-    circ.push_back(circBB);
+    Z_sel = Sel_gate(n,asBlockFlag);
+    %Z_sel.barrier(true);
 
-    % Append Hadamard layer
+    circ.push_back(Z_sel);
+    %circ.barrier(true);
+    %% Z_s operator
+circ.barrier(true)
+    circ.push_back(Fix_gate(n,asBlockFlag));
+
+    %% Final Hadamard
+
+    circ.push_back(qclab.qgates.Hadamard(n));
+
+    %% Pairwise CNOT layer
+
+    circ.push_back(Flip_gate(n,asBlockFlag));
+    %% Hadamard layer
+
     for i = 0:n-1
         circ.push_back(qclab.qgates.Hadamard(i));
     end

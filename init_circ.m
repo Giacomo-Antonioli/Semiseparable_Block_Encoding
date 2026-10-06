@@ -10,13 +10,18 @@ function circ = init_circ(n)
 
   % Main circuit with (2*n + 2) physical qubits, logical dimension n
   circ = qclab.QCircuit(3 * n + 2);
-
-  % Apply Hadamard on qubit 0
-  circ.push_back(qclab.qgates.Hadamard(n));
+% 
+%   % Apply Hadamard on qubit 0
 for i=0:n-1
     circ.push_back(qclab.qgates.SWAP(i,2*n+2+i));
 end
-  % Add MCMatrixGate for i = 0 .. n-1
-  for i = 0 : n - 1
-    circ.push_back(qclab.qgates.CSWAP(n,n+1+i,2*n+2+i));
-  end
+
+ %circ.push_back(qclab.qgates.Hadamard(n));
+
+  %Add MCMatrixGate for i = 0 .. n-1
+ for i = 0 : n - 1
+   circ.push_back(qclab.qgates.CSWAP(n,n+1+i,2*n+2+i));
+
+ end
+
+
