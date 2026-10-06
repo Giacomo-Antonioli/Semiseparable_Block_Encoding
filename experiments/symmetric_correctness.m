@@ -5,6 +5,7 @@
 %   - Flag to skip execution and ONLY regenerate the overall plots from saved disk data
 clear;
 clc;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 root = setup_paths();
 rng(42);
 %% ============================================================

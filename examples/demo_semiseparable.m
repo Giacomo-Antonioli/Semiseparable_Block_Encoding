@@ -7,6 +7,7 @@
 
 clear;
 clc;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 setup_paths();
 
 %% Problem size

@@ -7,6 +7,7 @@
 digits(64)
 %% Problem size
 N = 8;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 setup_paths();
 rng(42);
 
