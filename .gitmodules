@@ -1,0 +1,3 @@
+[submodule "external/fable"]
+	path = external/fable
+	url = https://github.com/QuantumComputingLab/fable.git

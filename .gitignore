@@ -1,1 +1,26 @@
+# MATLAB
+*.asv
+*.m~
+*.fig
+slprj/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
 .ipynb_checkpoints/
+
+# IDEs / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# New experiment runs (the data used in the paper is committed under results/<experiment>/)
+results/*/20*/
+results/*/latest/
+
+# Local leftovers from before the reorganization
+/fable/
+/qiskit_implementation/
