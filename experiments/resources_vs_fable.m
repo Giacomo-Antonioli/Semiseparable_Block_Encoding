@@ -30,6 +30,7 @@
 %   - Two summary figures (gate count vs. N, subnormalization vs. N).
 
 clear; clc;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 root = setup_paths();
 
 %% ---- Configuration --------------------------------------------------

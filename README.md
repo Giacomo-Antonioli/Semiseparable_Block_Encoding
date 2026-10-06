@@ -76,7 +76,7 @@ external/fable/      FABLE (git submodule)
 
 ## Reproducing the paper
 
-Run `setup_paths` once, then the scripts below. Each one writes to its own
+The scripts below can be run from any folder (each one calls `setup_paths`). Each one writes to its own
 folder under `results/`. New runs of the correctness and perturbation
 experiments go to timestamped subfolders, which git ignores.
 

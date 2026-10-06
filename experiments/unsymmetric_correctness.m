@@ -3,6 +3,7 @@
 % error per N, and prints min/max of each generator per trial.
 clear;
 clc;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 root = setup_paths();
 rng(46);
 

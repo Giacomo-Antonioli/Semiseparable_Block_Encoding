@@ -10,6 +10,7 @@
 % matching how the benchmark script computed err_eps(ei,t)/err_N(ni,t).
 %
 clear; clc;
+addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 root = setup_paths();
 
 %% --- Values not stored in the per-type files (only in cfg) ---
