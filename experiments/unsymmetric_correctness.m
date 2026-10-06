@@ -61,7 +61,10 @@ for ni = 1:num_n
         fprintf('--- N = %d | Trial %d/%d ---\n', N, t, cfg.n_trials);
 
         % 1. Fetch random generators and matrix directly from your function
-        [S,u,v,x,y,nu,nv,nx,ny] = generateUnsymm(N);
+        [~,u,v,x,y,nu,nv,nx,ny] = generateUnsymm(N);
+        % Unit-norm generators, so the subnormalization is 2*sqrt(N)
+        u = u/nu; v = v/nv; x = x/nx; y = y/ny;
+        S = tril(u*v') + triu(x*y', 1);
 
         % 1b. Print min/max of each generator for this trial
         fprintf('  Generator ranges (Trial %d, N=%d):\n', t, N);
@@ -75,7 +78,7 @@ for ni = 1:num_n
 
         % 2. Build the quantum circuit
         try
-            circ = build_unsymmetric_semiseparable_circuit(u, v, x, y,nu,nv,nx,ny);
+            circ = build_unsymmetric_semiseparable_circuit(u, v, x, y, 1, 1, 1, 1);
             dim = 2^circ.nbQubits;
             psi = zeros(dim, 1);
             S_tilde = zeros(N);
