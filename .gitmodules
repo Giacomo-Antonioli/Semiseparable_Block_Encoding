@@ -1,0 +1,4 @@
+[submodule "external/qclab"]
+	path = external/qclab
+	url = https://github.com/Giacomo-Antonioli/qclab.git
+	branch = feature/qsemisep-extras

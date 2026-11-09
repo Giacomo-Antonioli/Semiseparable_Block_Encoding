@@ -12,12 +12,20 @@ repository.
 A QCLAB that contains `qgates.CSWAP` and `QCircuit.InitializeStateVector`,
 `getGateCount`, `getDepth`, `getQubitCount`, `getControlledStats`. These are in
 the `feature/qsemisep-extras` branch of the fork
-`Giacomo-Antonioli/qclab` (QCLAB v1.2.0 plus these additions).
+`Giacomo-Antonioli/qclab` (QCLAB v1.2.0 plus these additions), included here
+as a git submodule in `external/qclab`:
+
+```
+git clone --recurse-submodules <this repository>
+# or, in an existing clone:
+git submodule update --init
+```
 
 ## Use
 
 ```matlab
-addpath(genpath('path/to/this/folder'));
+cd path/to/this/folder
+setup_paths   % library + bundled QCLAB fork
 circ = build_semiseparable_circuit(u, v);   % qclab.QCircuit
 ```
 
@@ -25,6 +33,7 @@ circ = build_semiseparable_circuit(u, v);   % qclab.QCircuit
 
 | Folder | Content |
 |---|---|
+| `external/qclab/` | QCLAB fork (git submodule) |
 | `circuits/` | `build_semiseparable_circuit`, `_mottonen`, `_exp`, `build_unsymmetric_semiseparable_circuit`, and the building blocks `init_circ`, `Sel_gate`, `Fix_gate`, `Flip_gate`, `leftshift`, `rightshift` |
 | `state_prep/` | state preparation of the generators (Mottonen state preparation is `qclab.mottonen_state_prep` in the fork) |
 
