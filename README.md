@@ -14,11 +14,12 @@ every numerical result in the paper, including the comparison against
 ## Requirements
 
 - MATLAB (tested with R2025b)
-- [QCLAB](https://github.com/QuantumComputingLab/qclab) on the MATLAB path.
-  **TODO:** this code uses QCLAB features that are not in the upstream release
-  (`qgates.CSWAP`, `QCircuit.InitializeStateVector`, `QCircuit.getGateCount`,
-  `getDepth`, `getQubitCount`, `getControlledStats`). Point this to the fork or
-  release that contains them.
+- [QCLAB](https://github.com/QuantumComputingLab/qclab), in the fork
+  [`Giacomo-Antonioli/qclab`](https://github.com/Giacomo-Antonioli/qclab)
+  (branch `feature/qsemisep-extras`: QCLAB v1.2.0 plus `qgates.CSWAP`,
+  `QCircuit.InitializeStateVector`, `getGateCount`, `getDepth`,
+  `getQubitCount`, `getControlledStats`). It is included as a git submodule
+  in `external/qclab` and `setup_paths` adds it to the path.
 - [FABLE](https://github.com/QuantumComputingLab/fable), included as a git
   submodule (only needed for the FABLE comparisons)
 - Optional, for the Qiskit port in `python/`: Python 3.10+ and the packages in
@@ -62,6 +63,7 @@ tests/               correctness checks
 python/              Qiskit implementation
 results/             data and figures used in the paper
 external/fable/      FABLE (git submodule)
+external/qclab/      QCLAB fork with the extra features (git submodule)
 ```
 
 ### Circuits (`src/circuits`)

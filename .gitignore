@@ -24,3 +24,6 @@ results/*/latest/
 # Local leftovers from before the reorganization
 /fable/
 /qiskit_implementation/
+
+# Local session notes
+SESSION_NOTES.md

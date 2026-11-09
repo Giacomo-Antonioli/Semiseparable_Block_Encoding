@@ -1,3 +1,7 @@
 [submodule "external/fable"]
 	path = external/fable
 	url = https://github.com/QuantumComputingLab/fable.git
+[submodule "external/qclab"]
+	path = external/qclab
+	url = https://github.com/Giacomo-Antonioli/qclab.git
+	branch = feature/qsemisep-extras
