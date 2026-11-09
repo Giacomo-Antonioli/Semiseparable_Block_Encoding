@@ -6,8 +6,14 @@ comparison live on the full branch (`reorganize`) of the same repository.
 
 ```
 pip install -r requirements.txt
-python semiseparable_qiskit.py
+python semiseparable_qiskit.py        # small correctness demo
 ```
 
-Status: `semiseparable_qiskit.py` still contains demo and plotting code and
-imports `fable`; it is not yet a clean importable module.
+```python
+from semiseparable_qiskit import full_circuit, mottonen_state_prep_qiskit
+circ = full_circuit(n)                 # 3n + 2 qubits
+```
+
+The module contains the circuit (`full_circuit` and its building blocks),
+Mottonen state preparation and `analyze_decomposed_circuit` (gate counts in a
+universal basis). It does not depend on FABLE or matplotlib.
