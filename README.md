@@ -25,7 +25,7 @@ circ = build_semiseparable_circuit(u, v);   % qclab.QCircuit
 | Folder | Content |
 |---|---|
 | `circuits/` | `build_semiseparable_circuit`, `_mottonen`, `_exp`, `build_unsymmetric_semiseparable_circuit`, and the building blocks `init_circ`, `Sel_gate`, `Fix_gate`, `Flip_gate`, `leftshift`, `rightshift` |
-| `state_prep/` | state preparation of the generators |
+| `state_prep/` | state preparation of the generators (Mottonen state preparation is `qclab.mottonen_state_prep` in the fork) |
 
 Test generators (`generateUnsymm`, random and OU generators) are not part of
 this branch.
