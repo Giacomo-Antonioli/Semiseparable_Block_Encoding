@@ -1,64 +1,37 @@
-%TEST_CORRECTNESS_SEMISEPARABLE
-% Verifies correctness of semiseparable block-encoding construction
+classdef test_symmetric_correctness < matlab.unittest.TestCase
+  % Verifies correctness of the symmetric semiseparable block-encoding
+  % construction S = tril(u*v') + triu(v*u', 1).
 
-clear;
-clc;
-addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
-setup_paths();
+  properties (TestParameter)
+    N = {2, 4, 8};
+  end
 
-%% Problem size
-N = 4;
-rng(42);
+  methods (TestClassSetup)
+    function addPaths(~)
+      addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
+      setup_paths();
+    end
+  end
 
-%% Generate normalized vectors (baseline test)
-u = randn(N,1);
-u = u / norm(u);
+  methods (Test)
+    function unitarityAndBlockEncoding(test, N)
+      rng(42);
+      u = randn(N, 1);  u = u / norm(u);
+      v = randn(N, 1);  v = v / norm(v);
+      S = tril(u*v') + triu(v*u', 1);
 
-v = randn(N,1);
-v = v / norm(v);
+      circ = build_semiseparable_circuit(u, v);
+      U = circ.matrix;
 
-%% Classical target matrix
-S = tril(u*v') + triu(v*u', 1);
+      % (A) unitarity
+      unitarity_error = norm(U' * U - eye(size(U)), 2);
 
-%% Build block-encoding circuit
-circ = build_semiseparable_circuit(u, v);
+      % (B) the top-left N x N block encodes S / (2 sqrt(N))
+      S_tilde = 2 * sqrt(N) * U(1:N, 1:N);
+      block_error = norm(S_tilde - S, 2);
 
-%% Extract full unitary
-U = circ.matrix;
-
-%% ============================================================
-% (A) UNITARITY CHECK
-%% ============================================================
-
-I = eye(size(U));
-unitarity_error = norm(U' * U - I, 2);
-
-fprintf('\n=== Unitarity check ===\n');
-fprintf('||U^†U - I||_2 = %.3e\n', unitarity_error);
-
-%% ============================================================
-% (B) BLOCK EXTRACTION CHECK
-%% ============================================================
-
-block_dim = N;
-scale = 2 * sqrt(N);
-
-U_block = U(1:block_dim, 1:block_dim);
-S_tilde = scale * U_block;
-
-block_error = norm(S_tilde - S, 2);
-
-fprintf('\n=== Block encoding check ===\n');
-fprintf('||S - S_tilde||_2 = %.3e\n', block_error);
-
-%% ============================================================
-% Summary
-%% ============================================================
-
-tol = 1e-10;
-
-if unitarity_error < tol && block_error < tol
-    fprintf('\nRESULT: PASS ✅\n');
-else
-    fprintf('\nRESULT: FAIL ❌\n');
+      test.verifyLessThan(unitarity_error, 1e-10);
+      test.verifyLessThan(block_error, 1e-10);
+    end
+  end
 end
