@@ -33,7 +33,7 @@ with `3n + 2` qubits (`2n + 2` ancillas) for `N = 2^n`.
 git clone --recurse-submodules https://github.com/Giacomo-Antonioli/Semiseparable_Block_Encoding
 cd Semiseparable_Block_Encoding
 pip install -r python/requirements.txt          # Python part only
-pip install external/fable/py                   # FABLE for Python, from the submodule
+pip install external/fable                      # FABLE for Python, from the submodule
 ```
 
 In MATLAB, from the repository root, run `setup_paths` once per session. It
