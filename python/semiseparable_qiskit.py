@@ -130,8 +130,9 @@ def Fix_gate(n: int, as_block: bool = False):
 
     for i in range(n):
         targets = list(range(nq - n, nq - i))
-        controls = [n - i, n + 1]
-        control_states = [1, 0]
+        # the placeholder qubit (n + 1) is not used as a control
+        controls = [n - i]
+        control_states = [1]
         leftshift(qc, targets, controls, control_states)
 
     return qc.to_gate(label="Z_{fix}") if as_block else qc

@@ -16,10 +16,18 @@ function circ = Fix_gate(n,asBlockFlag)
 %   The operator acts on a register of size:
 %       2n + 1 wires
 %
-%   It applies a sequence of leftshift operations:
-%       control wires:  tot_wires-n : tot_wires-1-i
-%       target wires :  [n-1-i, n]
+%   For i = 0:n-1 it applies a leftshift
+%       target wires :  tot_wires-n : tot_wires-1-i
+%       control wire :  n-1-i  (closed, state 1)
 %
+%   The placeholder wire n is not used as a control: both halves of the
+%   shifted subvectors undergo the same shift and only the first half
+%   enters the block encoding (see the paper, Section 4). An earlier
+%   version also used wire n as an open control (state 0) in every shift;
+%   the encoded top-left block is identical, only the part of the unitary
+%   outside the block and the gate counts differ.
+%
+%   See also LEFTSHIFT.
     if nargin < 2
         asBlockFlag = false;
     end
@@ -37,8 +45,8 @@ function circ = Fix_gate(n,asBlockFlag)
         tmp = leftshift( ...
             tot_wires, ...
             tot_wires - n : tot_wires - 1 - i, ...
-            [n-1-i, n], ...
-            [1, 0]);
+            n-1-i, ...
+            1);
 
         circ.push_back(tmp);
     end
