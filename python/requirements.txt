@@ -1,4 +1,6 @@
-numpy
-matplotlib
-qiskit>=1.0
-fable-circuits
+# Versions tested with the FABLE comparison script
+# (Python 3.12.3). FABLE for Python is installed from the submodule:
+#   pip install external/fable/py        (fable-circuits 1.0.2, commit 6c1766d)
+numpy==2.5.1
+matplotlib==3.11.1
+qiskit==2.5.1

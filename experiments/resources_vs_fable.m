@@ -32,6 +32,7 @@
 clear; clc;
 addpath(fullfile(fileparts(mfilename('fullpath')), '..'));
 root = setup_paths();
+rng(42);        % fixed seed (generators of type 1 and 2 are random)
 
 %% ---- Configuration --------------------------------------------------
 dims = 2:4;     % log2(N): matrix sizes N = 4, 8, ...

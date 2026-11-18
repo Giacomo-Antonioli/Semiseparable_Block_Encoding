@@ -8,8 +8,10 @@ from fable import fable
 from qiskit.quantum_info import Operator
 import numpy as np
 from qiskit.quantum_info import Statevector
+import argparse
+import csv
+import os
 import matplotlib
-matplotlib.use('TkAgg')
 
 
 
@@ -244,15 +246,15 @@ def analyze_decomposed_circuit(qc: QuantumCircuit) -> tuple[dict[str, int], int,
         clean_qc.append(instruction)
 
     # 2. Transpile using the universal basis set *including* 'ry'
+    # H is kept in the target set because the FABLE circuits contain Hadamards.
+    # optimization_level=0 gives the counts reported in the paper (Fig. fable).
     universal_basis = ['cx', 'h', 'x', 't', 'tdg', 's', 'sdg', 'swap', 'ry']
 
-    #decomposed_qc = transpile(
-    #    clean_qc,
-    #    basis_gates=universal_basis,
-    #    optimization_level=0
-    #)
-
-    decomposed_qc=clean_qc
+    decomposed_qc = transpile(
+        clean_qc,
+        basis_gates=universal_basis,
+        optimization_level=0
+    )
 
     # 3. Collect gate counts (excluding non-physical barriers)
     counts = dict(decomposed_qc.count_ops())
@@ -265,6 +267,17 @@ def analyze_decomposed_circuit(qc: QuantumCircuit) -> tuple[dict[str, int], int,
     return counts, depth, size
 
 
+
+
+def raw_stats(qc: QuantumCircuit) -> tuple[int, int]:
+    """Depth and size before transpilation (state-preparation blocks removed)."""
+    clean_qc = QuantumCircuit(*qc.qregs, *qc.cregs)
+    for instruction in qc.data:
+        op_name = instruction.operation.name
+        if isinstance(instruction.operation, StatePreparation) or op_name == "initialize":
+            continue
+        clean_qc.append(instruction)
+    return clean_qc.depth(), clean_qc.size()
 
 
 def mottonen_state_prep_qiskit_old(psi: np.ndarray, offset: int = 0) -> QuantumCircuit:
@@ -484,7 +497,18 @@ if __name__ == "__main__":
     # Define the range of n we want to analyze
     # Keeping upper limit lower if RUN_VERIFICATION=True, as computing operators
     # for large registers is slow.
-    n_values = list(range(2, 11))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--nmax", type=int, default=10,
+                        help="largest n, N = 2**n (paper: 10)")
+    parser.add_argument("--out-dir", default=os.path.join("results", "fable_python"),
+                        help="folder for the CSV files and the figure")
+    parser.add_argument("--show", action="store_true", help="open the figure window")
+    args = parser.parse_args()
+    if not args.show:
+        matplotlib.use("Agg")
+    os.makedirs(args.out_dir, exist_ok=True)
+
+    n_values = list(range(2, args.nmax + 1))
     N_values = [2 ** n for n in n_values]
     #print("NVALS")
     #print(N_values)
@@ -493,6 +517,8 @@ if __name__ == "__main__":
     # Track metrics per method
     depths = {"mottonen": [], "exponential": [], "fable": []}
     sizes = {"mottonen": [], "exponential": [], "fable": []}
+    raw_depths = {"mottonen": [], "exponential": [], "fable": []}
+    raw_sizes = {"mottonen": [], "exponential": [], "fable": []}
     gate_data = {
         "mottonen": defaultdict(list),
         "exponential": defaultdict(list),
@@ -543,6 +569,8 @@ if __name__ == "__main__":
         mot_counts, mot_depth, mot_size = analyze_decomposed_circuit(combined_mot)
         depths["mottonen"].append(mot_depth)
         sizes["mottonen"].append(mot_size)
+        rd, rs = raw_stats(combined_mot)
+        raw_depths["mottonen"].append(rd); raw_sizes["mottonen"].append(rs)
         #print(combined_mot)
         # --------------------------------------------------------
         # 2. Exact exponential state prep (prepare_uv) + full_circuit
@@ -563,6 +591,8 @@ if __name__ == "__main__":
         exp_counts, exp_depth, exp_size = analyze_decomposed_circuit(combined_exp)
         depths["exponential"].append(exp_depth)
         sizes["exponential"].append(exp_size)
+        rd, rs = raw_stats(combined_exp)
+        raw_depths["exponential"].append(rd); raw_sizes["exponential"].append(rs)
 
         #print("EXP DETPHT: ", exp_depth)
         #print("EXP size: ", exp_size)
@@ -575,6 +605,8 @@ if __name__ == "__main__":
         fable_counts, fable_depth, fable_size = analyze_decomposed_circuit(fable_circ)
         depths["fable"].append(fable_depth)
         sizes["fable"].append(fable_size)
+        rd, rs = raw_stats(fable_circ)
+        raw_depths["fable"].append(rd); raw_sizes["fable"].append(rs)
         #print("FABLE DEPHT: ", fable_depth)
         #print("FABLE size: ", fable_size)
         #print(fable_circ)
@@ -618,6 +650,46 @@ if __name__ == "__main__":
         #print("MOTONNEN DEPTH: ", circ_u_mot.depth())
         #print("MOTONNEN SIZE: ", circ_u_mot.size())
 
+    # --- Save the data and the fits quoted in the paper (Section 8.3) ---
+    with open(os.path.join(args.out_dir, "fable_comparison.csv"), "w", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["N", "method", "depth_raw", "size_raw", "depth_transpiled", "size_transpiled"])
+        for i, N in enumerate(N_values):
+            for method in ("mottonen", "exponential", "fable"):
+                w.writerow([N, method, raw_depths[method][i], raw_sizes[method][i],
+                            depths[method][i], sizes[method][i]])
+
+    def _fit(x, y):
+        # least-squares line in log-log scale: log y = p log x + c
+        lx, ly = np.log(x), np.log(np.asarray(y, dtype=float))
+        p, c = np.polyfit(lx, ly, 1)
+        res = ly - (p * lx + c)
+        r2_log = 1 - (res ** 2).sum() / ((ly - ly.mean()) ** 2).sum()
+        yy = np.asarray(y, dtype=float)
+        fit = np.exp(c) * np.asarray(x, dtype=float) ** p
+        r2_lin = 1 - ((yy - fit) ** 2).sum() / ((yy - yy.mean()) ** 2).sum()
+        return p, r2_log, r2_lin
+
+    n_arr = np.log2(np.asarray(N_values, dtype=float))
+    with open(os.path.join(args.out_dir, "fits.txt"), "w") as fh:
+        for what, data in (("depth", depths), ("size", sizes)):
+            p, r2l, r2 = _fit(np.asarray(N_values, dtype=float), data["fable"])
+            fh.write(f"FABLE {what}: exponent in N = {p:.3f}, R^2 (log scale) = {r2l:.4f}, R^2 (linear scale) = {r2:.4f}\n")
+            p, r2l, r2 = _fit(n_arr, data["exponential"])
+            fh.write(f"Exponential loader {what}: exponent p in C*(log2 N)^p = {p:.3f}, "
+                     f"R^2 (log scale) = {r2l:.4f}, R^2 (linear scale) = {r2:.4f}\n")
+            y = np.asarray(data["exponential"], dtype=float)
+            loc = np.diff(np.log(y)) / np.diff(np.log(n_arr))
+            fh.write(f"Exponential loader {what}: local exponents in log2 N between consecutive sizes: "
+                     + ", ".join(f"{v:.2f}" for v in loc) + "\n")
+        cross = next((N for i, N in enumerate(N_values)
+                      if depths["fable"][i] > depths["exponential"][i]), None)
+        fh.write(f"First N where FABLE depth > exponential-loader depth: {cross}\n")
+        cross = next((N for i, N in enumerate(N_values)
+                      if sizes["fable"][i] > sizes["exponential"][i]), None)
+        fh.write(f"First N where FABLE size  > exponential-loader size:  {cross}\n")
+    print(open(os.path.join(args.out_dir, "fits.txt")).read())
+
     # --- 3. Plotting: log-log comparison of decomposed circuit depth and size vs N ---
     N_arr = np.asarray(N_values, dtype=float)
 
@@ -639,7 +711,7 @@ if __name__ == "__main__":
                ':', color=(.6, .6, .6), label=r'$\propto N^2$')
     ax1.set_xlabel('$N$')
     ax1.set_ylabel('Circuit depth')
-    ax1.set_title('Non decomposed circuit depth')
+    ax1.set_title('Transpiled circuit depth')
     ax1.grid(True, which='both', linestyle=':', alpha=0.6)
     ax1.legend(loc='upper left', fontsize=9)
     ax1.set_xticks(N_values)
@@ -656,7 +728,7 @@ if __name__ == "__main__":
                ':', color=(.6, .6, .6), label=r'$\propto N^2$')
     ax2.set_xlabel('$N$')
     ax2.set_ylabel('Circuit size (gate count)')
-    ax2.set_title('Non decomposed circuit size')
+    ax2.set_title('Transpiled circuit size')
     ax2.grid(True, which='both', linestyle=':', alpha=0.6)
     ax2.legend(loc='upper left', fontsize=9)
     ax2.set_xticks(N_values)
@@ -664,7 +736,9 @@ if __name__ == "__main__":
     ax2.minorticks_off()
 
     plt.tight_layout()
-    plt.show()
+    fig.savefig(os.path.join(args.out_dir, "fable_comparison.png"), dpi=200)
+    if args.show:
+        plt.show()
 
 
 
