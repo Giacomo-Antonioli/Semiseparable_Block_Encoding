@@ -118,7 +118,7 @@ Not versioned. Running an experiment script creates `results/` and the subfolder
 
 Random seeds: every test, example and experiment script sets a fixed seed (`rng(42)`, except `unsymmetric_correctness.m` with `rng(46)`). The Python FABLE script is deterministic (no random numbers).
 
-Generators (Section 8): Random is a normalized Gaussian vector pair; Tridiagonal uses the first and last columns of the inverse of a random irreducible, diagonally dominant symmetric tridiagonal matrix; Exponential is `u_i = exp(3 i/N)`, `v_i = exp(-3 i/N)` normalized.
+Generators (Section 8): Random is a normalized Gaussian vector pair; Tridiagonal uses the first and last columns of the inverse of a random irreducible, diagonally dominant symmetric tridiagonal matrix; Exponential is `u_i = exp(3 t_i)`, `v_i = exp(-3 t_i)` normalized, with `t_i = i/(N-1)` (uniform grid on [0,1], `gen_ornstein_uhlenbeck.m`). The R_y loader of the Qiskit and FABLE comparison (`prepareUV.m`) uses `t_i = i/N`.
 
 | Paper result | Command | Parameters in the paper | Output |
 |---|---|---|---|
@@ -130,11 +130,7 @@ Generators (Section 8): Random is a normalized Gaussian vector pair; Tridiagonal
 | FABLE comparison, depth and size, N = 4 … 1024, fitted exponents, crossover (Fig. `fig:fable`, Sec. 8.3) | `python python/semiseparable_vs_fable_qiskit.py` (options `--nmax`, `--out-dir`, `--show`) | `n = 2:10`, θ = 3, transpiled with `optimization_level=0` to `{cx, h, x, t, tdg, s, sdg, swap, ry}` | `results/fable_python/fable_comparison.csv` (raw and transpiled depth/size), `fits.txt` |
 | Subnormalization versus FABLE | `experiments/subnormalization_vs_fable.m` | `dims = 2:10` | `results/subnormalization_vs_fable/` |
 
-### Known gaps (to be closed before the submitted version is tagged)
-
-- The `cfg` blocks of the MATLAB scripts hold the paper values (see the table above). `symmetric_correctness.m` at N = 128 needs more than 31 GB of RAM (it builds a 65536 x 65536 array) and only runs on a large-memory machine.
-- Section 8.3 states the gate set as {CNOT, X, T, T†, S, S†, SWAP, R_y}. The script also keeps `h` (FABLE circuits contain Hadamards, which cannot be translated without it). The paper numbers for our circuits are reproduced with `h` in the set.
-- FABLE counts: the script reproduces the paper values for N = 4, 8, 16 and differs from them for N ≥ 32 (see the checklist delivered with this README). Expected runtime and memory per script: TODO (measure on the machine used for the paper).
+Note: `symmetric_correctness.m` at N = 128 needs more than 31 GB of RAM (it builds a 65536 x 65536 array) and only runs on a large-memory machine.
 
 ## Citation
 
