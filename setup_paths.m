@@ -13,7 +13,6 @@ function root = setup_paths()
     addpath(root);
     addpath(genpath(fullfile(root, 'src')));
     addpath(fullfile(root, 'experiments', 'utils'));
-    addpath(fullfile(root, 'plotting'));
 
     fableDir = fullfile(root, 'external', 'fable', 'fable-qclab');
     if exist(fableDir, 'dir')

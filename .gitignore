@@ -17,10 +17,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# New experiment runs (the data used in the paper is committed under results/<experiment>/)
-results/*/20*/
-results/*/latest/
-
 # Local leftovers from before the reorganization
 /fable/
 /qiskit_implementation/
@@ -28,3 +24,10 @@ results/*/latest/
 # Local session notes
 SESSION_NOTES.md
 final_Version.txt
+
+# Results are not versioned: running an experiment script creates results/ and its CSV files
+results/
+
+# Figures and the PGFPlots generator scripts stay local
+*.png
+plotting/

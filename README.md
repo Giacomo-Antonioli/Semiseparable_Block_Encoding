@@ -37,7 +37,7 @@ pip install external/fable                      # FABLE for Python, from the sub
 ```
 
 In MATLAB, from the repository root, run `setup_paths` once per session. It
-puts `src/`, `experiments/utils/`, `plotting/`, FABLE and the QCLAB fork on the
+puts `src/`, `experiments/utils/`, FABLE and the QCLAB fork on the
 path. The stock QCLAB v1.2.0 is **not** enough (it lacks `qgates.CSWAP` and the
 other additions listed above).
 
@@ -98,10 +98,6 @@ One script per experiment (each calls `setup_paths`, fixes its seed with `rng(..
 | `subnormalization_vs_fable.m` | subnormalization `α/‖S‖₂` of our circuits and of FABLE, N = 4 … 1024 |
 | `resources_vs_fable.m` | gate count and depth in QCLAB, ours versus FABLE (small N, needs the full unitary) |
 
-### Plotting: `plotting/`
-
-`latex_correctness_plot.m`, `latex_perturbation_plot.m`, `generate_latex_figure.m`, `coords_str.m` write the PGFPlots coordinates used in the paper from the saved results.
-
 ### Python / Qiskit: `python/`
 
 | File | Description |
@@ -112,7 +108,7 @@ One script per experiment (each calls `setup_paths`, fixes its seed with `rng(..
 
 ### Data: `results/`
 
-Output of the experiment scripts that was used in the paper (`.mat`, `.csv`, `.tex`, figures). New runs go to timestamped subfolders, which git ignores.
+Not versioned. Running an experiment script creates `results/` and the subfolder of that experiment, with the `.csv` summaries (and `.mat` data, where the script saves them). Git ignores the whole folder, as well as figures (`.png`).
 
 ### Other
 
@@ -128,17 +124,15 @@ Generators (Section 8): Random is a normalized Gaussian vector pair; Tridiagonal
 |---|---|---|---|
 | Exactness: error below 1e-15 for N = 4 … 128 (Sec. 8.1) | `experiments/symmetric_correctness.m` | `n = 2:7`, three families | `results/symmetric_correctness/` |
 | Exactness, unsymmetric (Sec. 8.1) | `experiments/unsymmetric_correctness.m` | `n = 2:7` | `results/unsymmetric_correctness/` |
-| Error versus ε, N = 64, ε from 1e-14 to 1e-6 (Fig. `fig:first`) | `experiments/symmetric_perturbation.m` | `n_fixed = 6` | `results/symmetric_perturbation/epsilon_summary.csv`, `plots/error_vs_epsilon.png` |
-| Error versus N, ε = 1e-6, N = 4 … 128 (Fig. `fig:second`) | same script | `n_range = 2:7`, `eps_fixed = 1e-6` | `results/symmetric_perturbation/N_summary.csv`, `plots/error_vs_N.png` |
-| Unsymmetric tightness, N up to 32 (Sec. 8.2) | `experiments/unsymmetric_perturbation.m` | `n_range = 2:5` | `results/unsymmetric_perturbation/` |
-| FABLE comparison, depth and size, N = 4 … 1024, fitted exponents, crossover (Fig. `fig:fable`, Sec. 8.3) | `python python/semiseparable_vs_fable_qiskit.py` (options `--nmax`, `--out-dir`, `--show`) | `n = 2:10`, θ = 3, transpiled with `optimization_level=0` to `{cx, h, x, t, tdg, s, sdg, swap, ry}` | `results/fable_python/fable_comparison.csv` (raw and transpiled depth/size), `fits.txt`, `fable_comparison.png` |
+| Error versus ε, N = 64, ε from 1e-14 to 1e-6 (Fig. `fig:first`) | `experiments/symmetric_perturbation.m` | `n_fixed = 6` | `results/symmetric_perturbation/epsilon_summary.csv` |
+| Error versus N, ε = 1e-6, N = 4 … 128 (Fig. `fig:second`) | same script | `n_range = 2:7`, `eps_fixed = 1e-6` | `results/symmetric_perturbation/N_summary.csv` |
+| Unsymmetric tightness, N up to 32 (Sec. 8.2) | `experiments/unsymmetric_perturbation.m` | `n_range = 2:5` | `results/unsymmetric_perturbation/epsilon_summary.csv`, `N_summary.csv` |
+| FABLE comparison, depth and size, N = 4 … 1024, fitted exponents, crossover (Fig. `fig:fable`, Sec. 8.3) | `python python/semiseparable_vs_fable_qiskit.py` (options `--nmax`, `--out-dir`, `--show`) | `n = 2:10`, θ = 3, transpiled with `optimization_level=0` to `{cx, h, x, t, tdg, s, sdg, swap, ry}` | `results/fable_python/fable_comparison.csv` (raw and transpiled depth/size), `fits.txt` |
 | Subnormalization versus FABLE | `experiments/subnormalization_vs_fable.m` | `dims = 2:10` | `results/subnormalization_vs_fable/` |
-
-LaTeX/PGFPlots coordinates for the figures: `plotting/latex_correctness_plot.m` (on `results/symmetric_correctness/exp_1/runs`) and `plotting/latex_perturbation_plot.m` (on `results/symmetric_perturbation/runs`).
 
 ### Known gaps (to be closed before the submitted version is tagged)
 
-- The `cfg` blocks of the MATLAB scripts currently hold reduced debugging values (for example `symmetric_correctness.m` has `n_range = 1:3`, `symmetric_perturbation.m` has `n_fixed = 3`). The paper values are those in the table above and must be set before re-running. The committed files in `results/` should be checked against the paper figures.
+- The `cfg` blocks of the MATLAB scripts hold the paper values (see the table above). `symmetric_correctness.m` at N = 128 needs more than 31 GB of RAM (it builds a 65536 x 65536 array) and only runs on a large-memory machine.
 - Section 8.3 states the gate set as {CNOT, X, T, T†, S, S†, SWAP, R_y}. The script also keeps `h` (FABLE circuits contain Hadamards, which cannot be translated without it). The paper numbers for our circuits are reproduced with `h` in the set.
 - FABLE counts: the script reproduces the paper values for N = 4, 8, 16 and differs from them for N ≥ 32 (see the checklist delivered with this README). Expected runtime and memory per script: TODO (measure on the machine used for the paper).
 

@@ -175,7 +175,9 @@ T = struct2table(results);
 disp(T);
 fprintf('\nAll %d configurations checked (tol = %.1e).\n', ...
     height(T), tol);
-save(fullfile(root, 'results', 'resources_vs_fable', 'semiseparable_vs_fable_results.mat'), 'results', 'T');
+out_dir = fullfile(root, 'results', 'resources_vs_fable');
+if ~exist(out_dir, 'dir'), mkdir(out_dir); end
+save(fullfile(out_dir, 'semiseparable_vs_fable_results.mat'), 'results', 'T');
 
 %% ---- Gate-count comparison plot ------------------------------------------
 %% ---- Resource Plots (Including FABLE) -----------------------------------

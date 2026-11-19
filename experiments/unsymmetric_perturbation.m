@@ -68,7 +68,7 @@ rng(42);
 %% ============================================================
 
 cfg.n_fixed     = 3;              % N = 2^3 = 8 for the epsilon sweep
-cfg.n_range     = 2:4;            % N sweep (2,4,8) for the N experiment
+cfg.n_range     = 2:5;            % N sweep, N = 4, 8, 16, 32 (paper)
 
 cfg.eps_powers  = -6:-2:-14;      % epsilon sweep exponents
 cfg.eps_fixed   = 1e-6;           % epsilon held fixed for the N sweep
@@ -233,28 +233,17 @@ fprintf('====================================================\n');
 
 
 %% ============================================================
-% LATEX FIGURE GENERATION (pgfplots, same style as the reference doc)
+% CSV OUTPUT (the figure is not generated here; results are kept as CSV)
 %% ============================================================
-%
-% Produces a two-subfigure figure (error vs epsilon, error vs N), each
-% with the single "Random" curve and the per-trial theorem bound curve
-% 2*sqrt(w_lo^2+w_up^2)*epsilon (plotted through the actual
-% computed bound values, since -- unlike the symmetric 2*sqrt(2)*epsilon
-% case -- it is not a single fixed constant here).
+out_dir = fullfile(root,'results','unsymmetric_perturbation');
+if ~exist(out_dir,'dir'), mkdir(out_dir); end
 
-tex_str = generate_latex_figure( ...
-    eps_list, err_eps, bound_eps, N_fixed, ...
-    N_list,   err_N,   bound_N,   cfg.eps_fixed);
+T_eps = table(eps_list(:), err_eps(:), bound_eps(:), ...
+    'VariableNames', {'Epsilon','Error','Bound'});
+writetable(T_eps, fullfile(out_dir,'epsilon_summary.csv'));
 
-tex_file = fullfile(root,'results','unsymmetric_perturbation','perturbation_unsymm_random.tex');
-fid = fopen(tex_file,'w');
-fprintf(fid,'%s', tex_str);
-fclose(fid);
+T_N = table(N_list(:), err_N(:), bound_N(:), ...
+    'VariableNames', {'N','Error','Bound'});
+writetable(T_N, fullfile(out_dir,'N_summary.csv'));
 
-fprintf('\nLaTeX figure written to: %s\n\n', tex_file);
-fprintf('%s\n', tex_str);
-
-
-
-
-
+fprintf('\nCSV written to: %s\n\n', out_dir);

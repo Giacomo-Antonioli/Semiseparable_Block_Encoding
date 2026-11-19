@@ -11,7 +11,7 @@ rng(42);
 %% ============================================================
 % CONFIGURATION
 %% ============================================================
-cfg.n_range               = 1:3;
+cfg.n_range               = 2:7;  % N = 4 ... 128 (paper); N=128 needs >31 GB RAM
 cfg.num_runs               = 1;                    % runs per (experiment, n, type)
 cfg.num_experiments        = 1;                     % full independent repetitions
 cfg.type_names              = {'Random','Tridiagonal','Exponential'};

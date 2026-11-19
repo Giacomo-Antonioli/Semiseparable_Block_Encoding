@@ -1,5 +1,5 @@
 % BENCHMARK SCRIPT: Unsymmetric Random Plot Generator (10-Point Star)
-% Now runs 3 trials per N, saves all data per trial, plots the MEAN
+% Runs cfg.n_trials trials per N, saves all data per trial, plots the MEAN
 % error per N, and prints min/max of each generator per trial.
 clear;
 clc;
@@ -10,7 +10,7 @@ rng(46);
 %% ============================================================
 % CONFIGURATION
 %% ============================================================
-cfg.n_range        = 2:6;                               % N = 2^n -> 4, 8, 16, 32, 64, 128
+cfg.n_range        = 2:7;                               % N = 2^n -> 4, 8, 16, 32, 64, 128
 cfg.n_trials       = 1;                                  % Number of trials per N
 cfg.enable_saving  = true;                               % Saves .mat workspace data (generators/matrices)
 cfg.save_dir       = fullfile(root, 'results', 'unsymmetric_correctness', datestr(now, 'yyyy-mm-dd_HH-MM-SS'));
@@ -22,7 +22,7 @@ errors_mean   = NaN(num_n, 1);              % mean error per N (used for plottin
 % TikZ formatting style using the 10-pointed star mark
 latex_color   = 'magenta';
 latex_marker  = 'star, mark options={star points=10}';
-latex_label   = 'Random Unsymmetric (mean of 3 trials)';
+latex_label   = sprintf('Random Unsymmetric (mean of %d trials)', cfg.n_trials);
 
 if cfg.enable_saving && ~exist(cfg.save_dir, 'dir')
     mkdir(cfg.save_dir);

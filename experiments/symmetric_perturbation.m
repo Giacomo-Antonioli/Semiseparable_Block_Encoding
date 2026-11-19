@@ -59,8 +59,8 @@ rng(42);
 % CONFIGURATION
 %% ============================================================
 
-cfg.n_fixed          = 3;              % N=32 for epsilon sweep
-cfg.n_range          = 1:3;           % N sweep
+cfg.n_fixed          = 6;              % N=64 for epsilon sweep (paper)
+cfg.n_range          = 2:7;           % N sweep, N = 4 ... 128 (paper)
 
 cfg.type_names       = {'Random','Tridiagonal','Exponential'};
 cfg.types            = 1:numel(cfg.type_names);
